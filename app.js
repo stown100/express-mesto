@@ -22,12 +22,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.json());
 
 app.use(routesUsers);
 app.use(routesCards);
+
+app.use((req, res) => { res.status(404).send({ message: "Такого роута не существует" }); });
 
 
 app.listen(PORT, () => {
