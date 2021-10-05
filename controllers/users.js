@@ -11,7 +11,7 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  const {id} = req.user._id;
+  const {id} = req.params;
   return User.findById(id)
     .then((user) => {
       if (user) {
@@ -45,8 +45,9 @@ const createUser = (req, res) => {
 }
 
 const updeteProfile = (req, res) => {
-  const {id} = req.user._id;
-  return User.findByIdAndUpdate({id, new: true, runValidators: true})
+  const id = req.user._id;
+  const {name, about} = req.body
+  return User.findByIdAndUpdate(id, {name, about}, {new: true, runValidators: true})
   .then((user) => {
     return res.status(200).send(user);
   })
@@ -61,8 +62,9 @@ const updeteProfile = (req, res) => {
 }
 
 const updateAvatar = (req, res) => {
-  const {id} = req.user._id;
-  return User.findByIdAndUpdate({id, new: true, runValidators: true})
+  const id = req.user._id;
+  const {name, about} = req.params;
+  return User.findByIdAndUpdate(id, {name, about}, {new: true, runValidators: true})
   .then((user) => {
     return res.status(200).send(user);
   })

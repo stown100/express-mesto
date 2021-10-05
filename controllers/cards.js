@@ -10,7 +10,8 @@ const getCards = (req, res) => {
 }
 
 const createCards = (req, res) => {
-  return Card.create({...req.body})
+  const owner = req.user._id;
+  return Card.create(owner)
   .then((cards) => {
     return res.status(200).send(cards);
   })
@@ -28,13 +29,16 @@ const createCards = (req, res) => {
 const deleteCard = (req, res) => {
   return Card.findByIdAndDelete(req.params.cardId)
   .then((card) => {
-    if (!user) throw new Error('Нет карточки/пользователя по заданному id');
+    if (!card) throw new Error('Нет карточки/пользователя по заданному id');
     return res.status(200).send(card);
   })
   .catch((err) => {
     if (err.name === 'CastError') {
       res.status(400).send({ msg: 'Невалидный id' });
     }
+    if(err.message === 'Нет карточки/пользователя по заданному id') {
+      res.status(404).send({ msg: 'Нет карточки' });
+      }
     else {
       console.log('Error' + err);
       return res.status(500).send({msg: 'Error!'})
@@ -49,7 +53,7 @@ const likeCard = (req, res) => {
   { new: true },
   )
   .then((card) => {
-    if (!user) throw new Error('Нет карточки/пользователя по заданному id');
+    if (!card) throw new Error('Нет карточки/пользователя по заданному id');
     else {
       return res.status(200).send(card);
     }
@@ -58,17 +62,12 @@ const likeCard = (req, res) => {
     if (err.name === 'CastError') {
       res.status(400).send({ message: 'Невалидный id ' });
     }
-    else if (err.name === 'SomeErrorName') {
+    else if (err.message === 'Нет карточки/пользователя по заданному id') {
+      res.status(404).send({msg: 'Нет карточки'})
+    }
+    else {
       console.log('Error' + err);
       return res.status(500).send({msg: 'ошибка по-умолчанию'})
-    }
-    else if (err.name === 'SomeErrorName') {
-      console.log('Error' + err);
-      return res.status(400).send({msg: 'переданы некорректные данные в методы создания карточки, пользователя, обновления аватара пользователя или профиля'})
-    }
-    else if (err.name === 'SomeErrorName') {
-      console.log('Error' + err);
-      return res.status(404).send({msg: 'карточка или пользователь не найден'})
     }
   })
 }
@@ -80,24 +79,19 @@ const dislikeCard = (req, res) => {
   { new: true },
   )
   .then((card) => {
-    if (!user) throw new Error('Нет карточки/пользователя по заданному id');
+    if (!card) throw new Error('Нет карточки/пользователя по заданному id');
     return res.status(200).send(card);
   })
   .catch((err) => {
     if (err.name === 'CastError') {
       res.status(400).send({ message: 'Невалидный id ' });
     }
-    else if (err.name === 'SomeErrorName') {
+    else if (err.message === 'Нет карточки/пользователя по заданному id') {
+      res.status(404).send({msg: 'Нет карточки'})
+    }
+    else {
       console.log('Error' + err);
       return res.status(500).send({msg: 'ошибка по-умолчанию'})
-    }
-    else if (err.name === 'SomeErrorName') {
-      console.log('Error' + err);
-      return res.status(400).send({msg: 'переданы некорректные данные в методы создания карточки, пользователя, обновления аватара пользователя или профиля'})
-    }
-    else if (err.name === 'SomeErrorName') {
-      console.log('Error' + err);
-      return res.status(404).send({msg: 'карточка или пользователь не найден'})
     }
   })
 }
