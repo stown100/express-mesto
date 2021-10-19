@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
-const { createUser, login } = require('../controllers/users');
 
 const {
   getUsers, getUser, updateAvatar, updateUser,
@@ -14,16 +13,12 @@ router.get('/users/:id', celebrate({
   }),
 }), getUser);
 
-router.post('/users', createUser);
-
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
   }).unknown(true),
 }), updateUser);
-
-router.patch('/users', login);
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({

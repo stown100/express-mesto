@@ -24,14 +24,14 @@ app.use(express.json());
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
+    email: Joi.string().email({ tlds: { allow: false } }).required(),
     password: Joi.string().required(),
   }).unknown(true),
 }), login);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
+    email: Joi.string().email({ tlds: { allow: false } }).required(),
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
@@ -49,8 +49,7 @@ app.use((err, req, res, next) => {
   next(new Error('Not Found'));
 });
 
-app.use(auth);
-app.use(routesCards);
+app.use(auth, routesCards);
 app.use(errors());
 
 app.use((err, req, res, next) => {
