@@ -35,20 +35,6 @@ const getUser = (req, res, next) => {
     });
 };
 
-const createUser = (req, res, next) => User.create({ ...req.body })
-  .then((user) => res.status(200).send(user))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      const err = new Error('Невалидное поле');
-      err.statusCode = 400;
-      next(err);
-    } else {
-      const err = new Error('Ошибка на сервере');
-      err.statusCode = 500;
-      next(err);
-    }
-  });
-
 const updateUser = (req, res, next) => {
   const id = req.user._id;
   const { name, about } = req.params;
@@ -86,6 +72,20 @@ const updateAvatar = (req, res, next) => {
     });
 };
 
+const createUser = (req, res, next) => User.create({ ...req.body })
+  .then((user) => res.status(200).send(user))
+  .catch((err) => {
+    if (err.name === 'ValidationError') {
+      const err = new Error('Невалидное поле');
+      err.statusCode = 400;
+      next(err);
+    } else {
+      const err = new Error('Ошибка на сервере');
+      err.statusCode = 500;
+      next(err);
+    }
+  });
+
 const login = (req, res, next) => {
   const { email, password } = req.params;
   return User.findUserByCredentials(email, password)
@@ -95,7 +95,7 @@ const login = (req, res, next) => {
       }
       return res.send({ token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '21d' }) });
     })
-    .cach((err) => {
+    .catch((err) => {
       if (err.email === 'ValidationError') {
         const err = new Error('Невалидное поле');
         err.statusCode = 400;
