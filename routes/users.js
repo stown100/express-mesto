@@ -14,20 +14,7 @@ router.get('/users/:id', celebrate({
   }),
 }), getUser);
 
-router.post('/users', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().custom((value, helper) => {
-      if (validator.isURL(value, { require_protocol: true })) {
-        return value;
-      }
-      return helper.message('Невалидный url');
-    }),
-  }),
-}), createUser);
+router.post('/users', createUser);
 
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
@@ -36,12 +23,7 @@ router.patch('/users/me', celebrate({
   }).unknown(true),
 }), updateUser);
 
-router.patch('/users', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }).unknown(true),
-}), login);
+router.patch('/users', login);
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
