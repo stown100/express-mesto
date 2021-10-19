@@ -72,3 +72,26 @@ userSchema.statics.findUserByCredentials = function (email, password) {
 };
 
 module.exports = mongoose.model('user', userSchema);
+
+// const login = (req, res, next) => {
+//   const { email, password } = req.body;
+//   return User.findUserByCredentials(email, password)
+//     .then((user) => {
+//       if (!user) {
+//         return Promise.reject(new Error('Неправильный логин или пароль'));
+//       }
+//       return res.send({
+//  token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '21d' }) });
+//     })
+//     .catch((err) => {
+//       if (err.email === 'ValidationError') {
+//         const err = new Error('Невалидное поле');
+//         err.statusCode = 400;
+//         next(err);
+//       } else {
+//         const err = new Error('Ошибка на сервере5');
+//         err.statusCode = 500;
+//         next(err);
+//       }
+//     });
+// };

@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const User = require('../models/user');
 
 const getUsers = (req, res, next) => User.find({})
@@ -87,25 +88,33 @@ const createUser = (req, res, next) => User.create({ ...req.body })
   });
 
 const login = (req, res, next) => {
-  const { email, password } = req.params;
+  const { email, password } = req.body;
+  let userId;
   return User.findUserByCredentials(email, password)
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неправильный логин или пароль'));
+        const err = new Error('Неправильные почта или пароль');
+        err.statusCode = 401;
+        return next(err);
       }
-      return res.send({ token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '21d' }) });
+      userId = user._id;
+      return bcrypt.compare(password, user.password);
     })
-    .catch((err) => {
-      if (err.email === 'ValidationError') {
-        const err = new Error('Невалидное поле');
-        err.statusCode = 400;
-        next(err);
-      } else {
-        const err = new Error('Ошибка на сервере');
-        err.statusCode = 500;
-        next(err);
+    .then((matched) => {
+      if (!matched) {
+        const err = new Error('Неправильные почта или пароль');
+        err.statusCode = 401;
+        return next(err);
       }
-    });
+      // аутентификация успешна
+      const token = jwt.sign(
+        { _id: userId },
+        'some-secret-key',
+        { expiresIn: '21d' },
+      );
+      res.send({ token });
+    })
+    .catch(next);
 };
 
 module.exports = {
