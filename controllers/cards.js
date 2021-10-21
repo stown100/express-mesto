@@ -25,11 +25,11 @@ const createCards = (req, res) => {
 const deleteCard = (req, res) => Card.findByIdAndDelete(req.params.cardId)
   .then((card) => {
     if (!card) throw new Error('Нет карточки/пользователя по заданному id');
-    return res.status(200).send(card);
+    return res.status(400).send(card);
   })
   .catch((err) => {
     if (err.name === 'CastError') {
-      res.status(400).send({ msg: 'Невалидный id' });
+      res.status(403).send({ msg: 'Невалидный id' });
     }
     if (err.message === 'Нет карточки/пользователя по заданному id') {
       res.status(404).send({ msg: 'Нет карточки' });
@@ -48,12 +48,12 @@ const likeCard = (req, res) => {
     .then((card) => {
       if (!card) throw new Error('Нет карточки/пользователя по заданному id');
       else {
-        return res.status(200).send(card);
+        return res.status(400).send(card);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Невалидный id ' });
+        res.status(403).send({ message: 'Невалидный id ' });
       } else if (err.message === 'Нет карточки/пользователя по заданному id') {
         res.status(404).send({ msg: 'Нет карточки' });
       } else {
@@ -71,11 +71,11 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) throw new Error('Нет карточки/пользователя по заданному id');
-      return res.status(200).send(card);
+      return res.status(400).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Невалидный id ' });
+        res.status(403).send({ message: 'Невалидный id ' });
       } else if (err.message === 'Нет карточки/пользователя по заданному id') {
         res.status(404).send({ msg: 'Нет карточки' });
       } else {

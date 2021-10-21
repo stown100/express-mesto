@@ -2,95 +2,150 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 
-const getUsers = (req, res, next) => User.find({})
-  .then((users) => res.status(200).send(users))
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      const err = new Error('Ошибка авторизации');
-      err.statusCode = 500;
-      return next(err);
-    }
-  });
+const createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-const getUser = (req, res, next) => {
+  // хешируем пароль
+  bcrypt.hash(password, 10)
+    .then((password) => {
+      User.create({
+        name, about, avatar, email, password,
+      })
+        .then((user) => {
+          const newUser = user.toObject();
+          delete newUser.password;
+          res.send(newUser);
+        })
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            const err = new Error('Переданы некорректные данные при создании пользователя');
+            err.statusCode = 400;
+            return next(err);
+          }
+          if (err.message === 'Validation failed') {
+            const err = new Error('Переданы некорректные данные при создании пользователя');
+            err.statusCode = 400;
+            return next(err);
+          }
+          if (err.name === 'MongoServerError') {
+            const err = new Error('При регистрации указан email, который уже существует на сервере');
+            err.statusCode = 409;
+            return next(err);
+          }
+          const err2 = new Error('На сервере произошла ошибка');
+          err2.statusCode = 500;
+          return next(err2);
+        })
+        .catch(next);
+    });
+};
+
+const getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.send(users))
+    .catch(next);
+};
+
+const getUserById = (req, res, next) => {
   const { id } = req.params;
   return User.findById(id)
     .then((user) => {
       if (user) {
-        return res.status(200).send(user);
+        res.status(200).send(user);
+      } else {
+        const err = new Error('Пользователь по указанному _id не найден');
+        err.statusCode = 404;
+        return next(err);
       }
-      const err = new Error('Not Found');
-      err.statusCode = 404;
-      next(err);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        const err = new Error('Ошибка авторизации');
+        const err = new Error('Пользователь по указанному _id не найден');
         err.statusCode = 400;
-        next(err);
-      } else {
-        const err = new Error('Ошибка на сервере');
-        err.statusCode = 500;
-        next(err);
+        return next(err);
       }
-    });
+      if (err.name === 'NotFound') {
+        const err = new Error('Пользователь по указанному _id не найден');
+        err.statusCode = 404;
+        return next(err);
+      }
+      const err2 = new Error('На сервере произошла ошибка');
+      err2.statusCode = 500;
+      return next(err2);
+    })
+    .catch(next);
 };
 
 const updateUser = (req, res, next) => {
-  const id = req.user._id;
-  const { name, about } = req.params;
-  return User.findByIdAndUpdate(id, { name, about },
-    { new: true, runValidators: true })
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      if (err.avatar === 'ValidationError') {
-        const err = new Error('Невалидное поле');
-        err.statusCode = 400;
-        next(err);
+  const userId = req.user._id;
+  const { name, about } = req.body;
+
+  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+    .then((user) => {
+      if (user) {
+        res.send(user);
       } else {
-        const err = new Error('Ошибка на сервере');
-        err.statusCode = 500;
-        next(err);
+        const err = new Error('Пользователь по указанному _id не найден');
+        err.statusCode = 400;
+        return next(err);
       }
-    });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        const err = new Error('Пользователь по указанному _id не найден');
+        err.statusCode = 400;
+        return next(err);
+      }
+      if (err.name === 'ValidationError') {
+        const err = new Error('Переданы некорректные данные при обновлении профиля');
+        err.statusCode = 400;
+        return next(err);
+      }
+      const err2 = new Error('На сервере произошла ошибка');
+      err2.statusCode = 500;
+      return next(err2);
+    })
+    .catch(next);
 };
 
 const updateAvatar = (req, res, next) => {
-  const id = req.user._id;
-  const { avatar } = req.params;
-  return User.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true })
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      if (err.avatar === 'ValidationError') {
-        const err = new Error('Невалидное поле');
-        err.statusCode = 400;
-        next(err);
-      } else {
-        const err = new Error('Ошибка на сервере');
-        err.statusCode = 500;
-        next(err);
-      }
-    });
-};
+  const userId = req.user._id;
+  const { avatar } = req.body;
 
-const createUser = (req, res, next) => User.create({ ...req.body })
-  .then((user) => res.status(200).send(user))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      const err = new Error('Невалидное поле');
-      err.statusCode = 400;
-      next(err);
-    } else {
-      const err = new Error('Ошибка на сервере');
-      err.statusCode = 500;
-      next(err);
-    }
-  });
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+    .then((user) => {
+      if (user) {
+        res.send(user);
+      } else {
+        const err = new Error('Пользователь по указанному _id не найден');
+        err.statusCode = 400;
+        return next(err);
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        const err = new Error('Пользователь по указанному _id не найден');
+        err.statusCode = 400;
+        return next(err);
+      }
+      if (err.name === 'ValidationError') {
+        const err = new Error('Переданы некорректные данные при обновлении профиля');
+        err.statusCode = 400;
+        return next(err);
+      }
+      res.status(500).send({ message: 'Произошла ошибка' });
+    })
+    .catch(next);
+};
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
+
   let userId;
-  return User.findUserByCredentials(email, password)
+
+  return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         const err = new Error('Неправильные почта или пароль');
@@ -106,17 +161,41 @@ const login = (req, res, next) => {
         err.statusCode = 401;
         return next(err);
       }
+
       // аутентификация успешна
       const token = jwt.sign(
         { _id: userId },
         'some-secret-key',
-        { expiresIn: '21d' },
+        { expiresIn: '7d' },
       );
+
       res.send({ token });
     })
     .catch(next);
 };
 
+const getUserMe = (req, res, next) => {
+  const id = req.user._id;
+  User.find({ _id: id })
+    .then((user) => {
+      if (user) {
+        res.send(user);
+      } else {
+        const err = new Error('Пользователь по указанному _id не найден');
+        err.statusCode = 404;
+        return next(err);
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        const err = new Error('Пользователь по указанному _id не найден');
+        err.statusCode = 404;
+        return next(err);
+      }
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
+};
+
 module.exports = {
-  getUsers, getUser, createUser, login, updateAvatar, updateUser,
+  createUser, getUsers, getUserById, updateUser, updateAvatar, login, getUserMe,
 };
