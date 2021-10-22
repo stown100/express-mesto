@@ -49,7 +49,7 @@ app.use((err, req, res, next) => {
   next(new Error('Not Found'));
 });
 
-app.use(auth, routesCards);
+app.post(auth, routesCards);
 app.use(errors());
 
 app.use((err, req, res, next) => {

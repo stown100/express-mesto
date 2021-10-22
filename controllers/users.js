@@ -36,7 +36,7 @@ const createUser = (req, res, next) => {
           }
           const err2 = new Error('На сервере произошла ошибка');
           err2.statusCode = 500;
-          return next(err2);
+          return next(err);
         })
         .catch(next);
     });
@@ -165,8 +165,8 @@ const login = (req, res, next) => {
       // аутентификация успешна
       const token = jwt.sign(
         { _id: userId },
-        'some-secret-key',
-        { expiresIn: '7d' },
+        'super-strong-secret',
+        { expiresIn: '21d' },
       );
 
       res.send({ token });
