@@ -7,7 +7,7 @@ const getCards = (req, res, next) => Card.find({})
 const createCards = (req, res, next) => {
   const owner = req.user._id;
   const { name, link } = req.body;
-  return Card.create({ owner, name, link })
+  Card.create({ name, link, owner })
     .then((cards) => res.send(cards))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -27,26 +27,45 @@ const createCards = (req, res, next) => {
     .catch(next);
 };
 
-const deleteCard = (req, res, next) => Card.findByIdAndDelete(req.params.cardId)
-  .then((card) => {
-    if (!card) throw new Error('Нет карточки/пользователя по заданному id');
-    return res.status(400).send(card);
+const deleteCard = (req, res, next) => {
+  const cardId = req.user._id;
+  Card.findById({
+    _id: req.params.cardId,
+    owner: cardId,
   })
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      const err = new Error('Невалидный id');
-      err.statusCode = 403;
-      return next(err);
-    }
-    if (err.message === 'Нет карточки/пользователя по заданному id') {
-      const err = new Error('Нет карточки/пользователя по заданному id');
-      err.statusCode = 404;
-      next(err);
-    }
-    const error = new Error('На сервере произошла ошибка');
-    error.statusCode = 500;
-    return next(error);
-  });
+    .orFail(() => {
+      const error = new Error('Нет карточки по заданному id');
+      error.statusCode = 404;
+      throw error;
+    })
+    .then((card) => {
+      if (card.owner.toString() === req.user._id.toString()) {
+        card.remove();
+        res.status(200).send({ message: `Карточка c _id: ${req.params.cardId} успешно удалена.` });
+      } else {
+        const error = new Error('Нет карточки/пользователя по заданному id');
+        error.statusCode = 400;
+        next(error);
+        // if (!card) throw new Error('Нет карточки/пользователя по заданному id');
+        // return res.status(400).send(card);
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        const err = new Error('Невалидный id');
+        err.statusCode = 403;
+        return next(err);
+      }
+      if (err.message === 'Нет карточки/пользователя по заданному id') {
+        const err = new Error('Нет карточки/пользователя по заданному id');
+        err.statusCode = 404;
+        next(err);
+      }
+      const error = new Error('На сервере произошла ошибка');
+      error.statusCode = 500;
+      return next(error);
+    });
+};
 
 const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
@@ -55,8 +74,13 @@ const likeCard = (req, res, next) => {
     { new: true },
   )
     .then((card) => {
-      if (!card) throw new Error('Нет карточки/пользователя по заданному id');
-      return res.status(400).send(card);
+      if (card) {
+        res.send(card);
+      } else {
+        const err = new Error('Карточка с указанным _id не найдена');
+        err.statusCode = 404;
+        return next(err);
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -82,8 +106,13 @@ const dislikeCard = (req, res, next) => {
     { new: true },
   )
     .then((card) => {
-      if (!card) throw new Error('Нет карточки/пользователя по заданному id');
-      return res.status(400).send(card);
+      if (card) {
+        res.send(card);
+      } else {
+        const err = new Error('Карточка с указанным _id не найдена');
+        err.statusCode = 404;
+        return next(err);
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') {

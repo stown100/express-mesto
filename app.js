@@ -1,21 +1,20 @@
 const express = require('express');
-// const path = require('path');
 const mongoose = require('mongoose');
-// const { errors } = require('celebrate');
 const { celebrate, Joi, errors } = require('celebrate');
 const validator = require('validator');
-// const bodyParser = require('body-parser');
 const routesCards = require('./routes/cards');
+const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+// const bodyParser = require('body-parser');
+// const path = require('path');
 
 const PORT = 3000;
 const app = express();
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
-  // useCreateIndex: true,
-  // useFindAndModify: false
+  autoIndex: true, // make this also true
 });
 
 // app.use(express.static(path.join(__dirname, 'public')));
@@ -49,12 +48,20 @@ app.use((err, req, res, next) => {
   next(new Error('Not Found'));
 });
 
-app.post(auth, routesCards);
-app.use(errors());
+app.use(auth);
+
+app.use('/users', routesUsers);
+app.use('/cards', routesCards);
+// app.all('*', (req, res) => {
+//   res.status(404).send({ message: 'Ресурс не найден' });
+// });
+app.use(errors);
 
 app.use((err, req, res, next) => {
   res.send({ msg: err.message });
   next(new Error('Ошибка авторизации'));
 });
 
-app.listen(PORT);
+app.listen(PORT, () => {
+  console.log(`Ссылка на сервер: http://localhost:${PORT}`);
+});

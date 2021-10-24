@@ -3,32 +3,33 @@ const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 
 const {
-  getUsers, getUser, updateAvatar, updateUser,
+  getUsers, getUserById, updateAvatar, updateUser, getMyInfo,
 } = require('../controllers/users');
 
 router.get('/users', getUsers);
+router.get('/users/me', getMyInfo);
 router.get('/users/:id', celebrate({
   params: Joi.object().keys({
     id: Joi.string().required().length(24).hex(),
   }),
-}), getUser);
+}), getUserById);
 
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
-  }).unknown(true),
+  }),
 }), updateUser);
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    link: Joi.string().custom((value, helper) => {
+    avatar: Joi.string().custom((value, helper) => {
       if (validator.isURL(value, { require_protocol: true })) {
         return value;
       }
       return helper.message('Невалидный url');
     }),
-  }).unknown(true),
+  }),
 }), updateAvatar);
 
 module.exports = router;

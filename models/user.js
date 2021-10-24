@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     maxlength: 30,
   },
   about: {
-    type: String,
+    type: String, // имя — это строка
     default: 'Исследователь',
     minlength: 2,
     maxlength: 30,
