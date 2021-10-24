@@ -44,7 +44,7 @@ const createUser = (req, res, next) => {
 
 const getMyInfo = (req, res, next) => {
   User.findById(req.user._id)
-    .then((user) => { res.status(200).send(user); })
+    .then((user) => { res.send(user); })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new Error('Переданы некорректные данные.'));
@@ -61,11 +61,12 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
+  // тут
   const { id } = req.params;
   return User.findById(id)
     .then((user) => {
       if (user) {
-        res.status(200).send(user);
+        res.send(user);
       } else {
         const err = new Error('Пользователь по указанному _id не найден');
         err.statusCode = 404;
@@ -157,7 +158,7 @@ const login = (req, res, next) => {
 
   let userId;
 
-  return User.findOne({ email }).select('+password')
+  User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         const err = new Error('Неправильные почта или пароль');

@@ -1,12 +1,14 @@
 const Card = require('../models/card');
 
-const getCards = (req, res, next) => Card.find({})
-  .then((cards) => res.send(cards))
-  .catch(next);
+const getCards = (req, res, next) => {
+  Card.find({})
+    .then((cards) => res.send(cards))
+    .catch(next);
+};
 
 const createCards = (req, res, next) => {
-  const owner = req.user._id;
   const { name, link } = req.body;
+  const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((cards) => res.send(cards))
     .catch((err) => {
@@ -38,6 +40,7 @@ const deleteCard = (req, res, next) => {
       error.statusCode = 404;
       throw error;
     })
+    // тут по другому
     .then((card) => {
       if (card.owner.toString() === req.user._id.toString()) {
         card.remove();

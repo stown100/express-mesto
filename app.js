@@ -43,24 +43,21 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use((err, req, res, next) => {
-  res.send({ msg: err.message });
-  next(new Error('Not Found'));
-});
-
 app.use(auth);
 
 app.use('/users', routesUsers);
 app.use('/cards', routesCards);
+
 // app.all('*', (req, res) => {
 //   res.status(404).send({ message: 'Ресурс не найден' });
 // });
+
 app.use(errors);
 
-app.use((err, req, res, next) => {
-  res.send({ msg: err.message });
-  next(new Error('Ошибка авторизации'));
-});
+// app.use((err, req, res, next) => {
+//   res.send({ msg: err.message });
+//   next(new Error('Ошибка авторизации'));
+// });
 
 app.listen(PORT, () => {
   console.log(`Ссылка на сервер: http://localhost:${PORT}`);
