@@ -1,27 +1,28 @@
-const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
-
+const router = require('express').Router();
 const {
-  getUsers, getUserById, updateAvatar, updateUser, getMyInfo,
+  getUsers, getUserById, updateUser, updateAvatar, getUserMe,
 } = require('../controllers/users');
 
-router.get('/users', getUsers);
-router.get('/users/me', getMyInfo);
-router.get('/users/:id', celebrate({
+router.get('/', getUsers);
+router.get('/me', getUserMe);
+
+router.get('/:userId', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().required().length(24).hex(),
+    userId: Joi.string().min(24).max(24).hex()
+      .required(),
   }),
 }), getUserById);
 
-router.patch('/users/me', celebrate({
+router.patch('/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(30),
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
   }),
 }), updateUser);
 
-router.patch('/users/me/avatar', celebrate({
+router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().custom((value, helper) => {
       if (validator.isURL(value, { require_protocol: true })) {

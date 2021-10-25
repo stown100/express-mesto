@@ -6,7 +6,6 @@ const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-
   // хешируем пароль
   bcrypt.hash(password, 10)
     .then((password) => {
@@ -42,18 +41,6 @@ const createUser = (req, res, next) => {
     });
 };
 
-const getMyInfo = (req, res, next) => {
-  User.findById(req.user._id)
-    .then((user) => { res.send(user); })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new Error('Переданы некорректные данные.'));
-      } else {
-        next(err);
-      }
-    });
-};
-
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
@@ -61,9 +48,8 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  // тут
-  const { id } = req.params;
-  return User.findById(id)
+  const id = req.params.userId;
+  return User.findById({ _id: id })
     .then((user) => {
       if (user) {
         res.send(user);
@@ -84,9 +70,9 @@ const getUserById = (req, res, next) => {
         err.statusCode = 404;
         return next(err);
       }
-      const err2 = new Error('На сервере произошла ошибка');
-      err2.statusCode = 500;
-      return next(err2);
+      const error = new Error('На сервере произошла ошибка');
+      error.statusCode = 500;
+      return next(error);
     })
     .catch(next);
 };
@@ -187,28 +173,28 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
-// const getUserMe = (req, res, next) => {
-//   const id = req.user._id;
-//   User.find({ userId: id })
-//     .then((user) => {
-//       if (user) {
-//         res.send(user);
-//       } else {
-//         const err = new Error('Пользователь по указанному _id не найден');
-//         err.statusCode = 404;
-//         return next(err);
-//       }
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         const err = new Error('Пользователь по указанному _id не найден');
-//         err.statusCode = 404;
-//         return next(err);
-//       }
-//       res.status(500).send({ message: 'Произошла ошибка' });
-//     });
-// };
+const getUserMe = (req, res, next) => {
+  const id = req.user._id;
+  User.find({ _id: id })
+    .then((user) => {
+      if (user) {
+        res.send(user);
+      } else {
+        const err = new Error('Пользователь по указанному _id не найден');
+        err.statusCode = 404;
+        return next(err);
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        const err = new Error('Пользователь по указанному _id не найден');
+        err.statusCode = 404;
+        return next(err);
+      }
+      res.status(500).send({ message: 'Ошибка на сервере' });
+    });
+};
 
 module.exports = {
-  createUser, getUsers, getUserById, updateUser, updateAvatar, login, getMyInfo,
+  createUser, getUsers, getUserById, updateUser, updateAvatar, login, getUserMe,
 };

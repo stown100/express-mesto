@@ -1,11 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, Joi, errors } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 const routesCards = require('./routes/cards');
 const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const errors = require('./middlewares/errors');
 // const bodyParser = require('body-parser');
 // const path = require('path');
 
@@ -48,9 +49,9 @@ app.use(auth);
 app.use('/users', routesUsers);
 app.use('/cards', routesCards);
 
-// app.all('*', (req, res) => {
-//   res.status(404).send({ message: 'Ресурс не найден' });
-// });
+app.all('*', (req, res) => {
+  res.status(404).send({ message: 'Ресурс не найден' });
+});
 
 app.use(errors);
 
