@@ -30,26 +30,21 @@ const createCards = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  const cardId = req.user._id;
+  const cardById = req.user._id;
   Card.findById({
     _id: req.params.cardId,
-    owner: cardId,
+    owner: cardById,
   })
-    .orFail(() => {
-      const error = new Error('Нет карточки по заданному id');
-      error.statusCode = 404;
-      throw error;
-    })
     .then((card) => {
       if (!card) {
         const err = new Error('Нет карточки по заданному id');
         err.statusCode = 404;
         return next(err);
       }
-      if (card.owner === cardId) {
+      if (card.owner.toString() === cardById.toString()) {
         Card.findOneAndRemove({
           _id: req.params.cardId,
-          owner: cardId,
+          owner: cardById,
         })
           .then((cardRes) => {
             res.send(cardRes);
@@ -69,12 +64,13 @@ const deleteCard = (req, res, next) => {
       if (err.message === 'NotFound') {
         const err = new Error('Нет карточки по заданному id');
         err.statusCode = 404;
-        next(err);
+        return next(err);
       }
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;
       return next(error);
-    });
+    })
+    .catch(next);
 };
 
 const likeCard = (req, res, next) => {
