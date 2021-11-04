@@ -30,6 +30,7 @@ const createUser = (req, res, next) => {
           }
           if (err.name === 'MongoServerError') {
             const err = new Error('При регистрации указан email, который уже существует на сервере');
+            console.log(err);
             err.statusCode = 409;
             return next(err);
           }

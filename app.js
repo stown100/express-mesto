@@ -56,7 +56,6 @@ app.use('/users', routesUsers);
 app.use('/cards', routesCards);
 
 app.all('*', (req, res, next) => {
-  // res.status(404).send({ message: 'Ресурс не найден' });
   const err = new Error('Ресурс не найден');
   err.statusCode = 404;
   return next(err);
