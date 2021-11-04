@@ -7,7 +7,8 @@ const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errors = require('./middlewares/errors');
-// const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { allowOrigin } = require('./middlewares/cors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 // const bodyParser = require('body-parser');
 // const path = require('path');
 
@@ -23,7 +24,9 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(express.json());
 
-// app.use(requestLogger); // подключаем логгер запросов
+app.use(requestLogger); // подключаем логгер запросов
+
+app.use(allowOrigin);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -52,11 +55,14 @@ app.use(auth);
 app.use('/users', routesUsers);
 app.use('/cards', routesCards);
 
-app.all('*', (req, res) => {
-  res.status(404).send({ message: 'Ресурс не найден' });
+app.all('*', (req, res, next) => {
+  // res.status(404).send({ message: 'Ресурс не найден' });
+  const err = new Error('Ресурс не найден');
+  err.statusCode = 404;
+  return next(err);
 });
 
-// app.use(errorLogger); // подключаем логгер ошибок
+app.use(errorLogger); // подключаем логгер ошибок
 
 app.use(errors);
 
@@ -66,5 +72,5 @@ app.use(errors);
 // });
 
 app.listen(PORT, () => {
-  console.log(`Ссылка на сервер: http://localhost:${PORT}`);
+  console.log('Ссылка на сервер: http://application-mesto.nomoredomains.icu/');
 });

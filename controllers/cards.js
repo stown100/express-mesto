@@ -58,7 +58,7 @@ const deleteCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         const err = new Error('Нет карточки по заданному id');
-        err.statusCode = 404;
+        err.statusCode = 400;
         return next(err);
       }
       if (err.message === 'NotFound') {
@@ -91,7 +91,7 @@ const likeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         const err = new Error('Невалидный id');
-        err.statusCode = 403;
+        err.statusCode = 400;
         next(err);
       }
       if (err.message === 'NotFound') {
