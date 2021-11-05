@@ -2,6 +2,13 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 
+class ConflictError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 409;
+  }
+}
+
 const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
@@ -29,12 +36,15 @@ const createUser = (req, res, next) => {
             return next(err);
           }
           if (err.name === 'MongoServerError') {
-            res.status(409).send('При регистрации указан email, который уже существует на сервере');
-            // const err = new Error('При регистрации указан email, который уже существует на сервере');
-            // err.statusCode = 409;
-            // console.log(err.statusCode);
-            return next(err);
+            throw new ConflictError('Пользователь с данным email уже существует');
+            return next(err)
           }
+          // if (err.name === 'MongoServerError') {
+          //   const err = new Error('При регистрации указан email, который уже существует на сервере');
+          //   err.statusCode = 409;
+          //   console.log(err.statusCode);
+          //   return next(err);
+          // }
           const error = new Error('На сервере произошла ошибка');
           error.statusCode = 500;
           return next(error);
