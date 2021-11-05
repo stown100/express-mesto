@@ -32,19 +32,19 @@ const createUser = (req, res, next) => {
           }
           if (err.message === 'Validation failed') {
             const err = new Error('Переданы некорректные данные при создании пользователя');
-            err.statusCode = 400;
+            err.statusCode = 409;
             return next(err);
           }
-          if (err.name === 'MongoServerError') {
-            throw new ConflictError('Пользователь с данным email уже существует');
-            return next(err)
-          }
           // if (err.name === 'MongoServerError') {
-          //   const err = new Error('При регистрации указан email, который уже существует на сервере');
-          //   err.statusCode = 409;
-          //   console.log(err.statusCode);
-          //   return next(err);
+          //   throw new ConflictError('Пользователь с данным email уже существует');
+          //   return next(err)
           // }
+          if (err.name === 'MongoServerError') {
+            const err = new Error('При регистрации указан email, который уже существует на сервере');
+            err.statusCode = 409;
+            console.log(err.statusCode);
+            return next(err);
+          }
           const error = new Error('На сервере произошла ошибка');
           error.statusCode = 500;
           return next(error);
