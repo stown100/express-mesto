@@ -1,7 +1,9 @@
 // Массив доменов, с которых разрешены кросс-доменные запросы
 const allowedCors = [
   'https://application-mesto.nomoredomains.icu',
+  'http://application-mesto.nomoredomains.icu',
   'https://api.application-mesto.nomoredomains.xyz',
+  'http://api.application-mesto.nomoredomains.xyz',
   'localhost:3000',
 ];
 

@@ -6,9 +6,9 @@ const cors = require('cors');
 const routesCards = require('./routes/cards');
 const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
-// const auth = require('./middlewares/auth');
+const auth = require('./middlewares/auth');
 const errors = require('./middlewares/errors');
-// const { allowOrigin } = require('./middlewares/cors');
+const { allowOrigin } = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 // const bodyParser = require('body-parser');
 // const path = require('path');
@@ -23,28 +23,28 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 // app.use(express.static(path.join(__dirname, 'public')));
 
-const corsOptions = {
-  origin: [
-    'https://application-mesto.nomoredomains.icu',
-    'http://application-mesto.nomoredomains.icu',
-    'https://api.application-mesto.nomoredomains.xyz',
-    'http://api.application-mesto.nomoredomains.xyz',
-    'localhost:3000',
-  ],
-  methods: ['PUT', 'GET', 'POST', 'PATCH', 'DELETE', 'HEAD'],
-  preflightContinue: false,
-  optionSuccessStatus: 204,
-  allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
-  credentials: true,
-};
+// const corsOptions = {
+//   origin: [
+//     'https://application-mesto.nomoredomains.icu',
+//     'http://application-mesto.nomoredomains.icu',
+//     'https://api.application-mesto.nomoredomains.xyz',
+//     'http://api.application-mesto.nomoredomains.xyz',
+//     'localhost:3000',
+//   ],
+//   methods: ['PUT', 'GET', 'POST', 'PATCH', 'DELETE', 'HEAD'],
+//   preflightContinue: false,
+//   optionSuccessStatus: 204,
+//   allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
+//   credentials: true,
+// };
 
-app.use('*', cors(corsOptions));
+// app.use('*', cors(corsOptions));
 
 app.use(express.json());
 
 app.use(requestLogger); // подключаем логгер запросов
 
-// app.use(allowOrigin);
+app.use('*', cors(allowOrigin));
 
 // app.use(cors);
 
@@ -70,8 +70,8 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use('/users', routesUsers);
-app.use('/cards', routesCards);
+app.use('/users', auth, routesUsers);
+app.use('/cards', auth, routesCards);
 
 app.all('*', (req, res, next) => {
   const err = new Error('Ресурс не найден');
