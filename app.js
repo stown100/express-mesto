@@ -70,10 +70,8 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use(auth);
-
-app.use('/users', routesUsers);
-app.use('/cards', routesCards);
+app.use('/users', auth, routesUsers);
+app.use('/cards', auth, routesCards);
 
 app.all('*', (req, res, next) => {
   const err = new Error('Ресурс не найден');
