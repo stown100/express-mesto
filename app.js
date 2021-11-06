@@ -13,7 +13,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 // const bodyParser = require('body-parser');
 // const path = require('path');
 
-const PORT = 4000;
+const PORT = 3000;
 const app = express();
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -34,7 +34,7 @@ const corsOptions = {
   methods: ['PUT', 'GET', 'POST', 'PATCH', 'DELETE', 'HEAD'],
   preflightContinue: false,
   optionSuccessStatus: 204,
-  alloweHeaders: ['Content-Type', 'origin', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
   credentials: true,
 };
 
