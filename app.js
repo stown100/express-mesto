@@ -91,5 +91,5 @@ app.use(errors);
 // });
 
 app.listen(PORT, () => {
-  console.log('Ссылка на сервер: http://application-mesto.nomoredomains.icu/');
+  console.log('Ссылка на сервер: http://api.application-mesto.nomoredomains.xyz');
 });
