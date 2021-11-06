@@ -6,7 +6,7 @@ const cors = require('cors');
 const routesCards = require('./routes/cards');
 const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
-const auth = require('./middlewares/auth');
+// const auth = require('./middlewares/auth');
 const errors = require('./middlewares/errors');
 // const { allowOrigin } = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -70,8 +70,8 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use('/users', auth, routesUsers);
-app.use('/cards', auth, routesCards);
+app.use('/users', routesUsers);
+app.use('/cards', routesCards);
 
 app.all('*', (req, res, next) => {
   const err = new Error('Ресурс не найден');
