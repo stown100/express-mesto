@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
+const cors = require('cors');
 const routesCards = require('./routes/cards');
 const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
@@ -27,6 +28,8 @@ app.use(express.json());
 app.use(requestLogger); // подключаем логгер запросов
 
 app.use(allowOrigin);
+
+app.use(cors);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
