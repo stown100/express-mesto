@@ -13,7 +13,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 // const bodyParser = require('body-parser');
 // const path = require('path');
 
-const PORT = 4000;
+const PORT = 3000;
 const app = express();
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
