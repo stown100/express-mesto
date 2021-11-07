@@ -2,13 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
-// const cors = require('cors');
+const cors = require('cors');
 const routesCards = require('./routes/cards');
 const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errors = require('./middlewares/errors');
-const { allowOrigin } = require('./middlewares/cors');
+// const { allowOrigin } = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 // const bodyParser = require('body-parser');
 // const path = require('path');
@@ -28,24 +28,24 @@ app.use(express.json());
 app.use(requestLogger); // подключаем логгер запросов
 
 // корс №1
-app.use(allowOrigin);
+// app.use(allowOrigin);
 // корс №2
-// const corsOptions = {
-//   origin: [
-//     'https://application-mesto.nomoredomains.icu',
-//     'http://application-mesto.nomoredomains.icu',
-//     'https://api.application-mesto.nomoredomains.xyz',
-//     'http://api.application-mesto.nomoredomains.xyz',
-//     'localhost:3000',
-//   ],
-//   methods: ['PUT', 'GET', 'POST', 'PATCH', 'DELETE', 'HEAD'],
-//   preflightContinue: false,
-//   optionSuccessStatus: 204,
-//   allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
-//   credentials: true,
-// };
+const corsOptions = {
+  origin: [
+    'https://application-mesto.nomoredomains.icu',
+    'http://application-mesto.nomoredomains.icu',
+    'https://api.application-mesto.nomoredomains.xyz',
+    'http://api.application-mesto.nomoredomains.xyz',
+    'localhost:3000',
+  ],
+  methods: ['PUT', 'GET', 'POST', 'PATCH', 'DELETE', 'HEAD'],
+  preflightContinue: false,
+  optionSuccessStatus: 204,
+  allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
+  credentials: true,
+};
 
-// app.use('*', cors(corsOptions));
+app.use('*', cors(corsOptions));
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
