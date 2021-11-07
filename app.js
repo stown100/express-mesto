@@ -1,8 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errorCelebrate } = require('celebrate');
 const validator = require('validator');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const routesCards = require('./routes/cards');
 const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
@@ -10,22 +11,10 @@ const auth = require('./middlewares/auth');
 const errors = require('./middlewares/errors');
 // const { allowOrigin } = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-// const bodyParser = require('body-parser');
 // const path = require('path');
 
 const PORT = 3000;
 const app = express();
-
-mongoose.connect('mongodb://localhost:27017/mestodb', {
-  useNewUrlParser: true,
-  autoIndex: true, // make this also true
-});
-
-// app.use(express.static(path.join(__dirname, 'public')));
-
-app.use(express.json());
-
-app.use(requestLogger); // подключаем логгер запросов
 
 // корс №1
 // app.use(allowOrigin);
@@ -36,16 +25,41 @@ const corsOptions = {
     'http://application-mesto.nomoredomains.icu',
     'https://api.application-mesto.nomoredomains.xyz',
     'http://api.application-mesto.nomoredomains.xyz',
+    'localhost:7000',
+    'http://localhost:7000',
+    'https://localhost:7000',
+    'localhost:7000',
+    'https://localhost:3000',
+    'http://localhost:3000',
     'localhost:3000',
   ],
   methods: ['PUT', 'GET', 'POST', 'PATCH', 'DELETE', 'HEAD'],
   preflightContinue: false,
   optionsSuccessStatus: 204,
-  allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'origin', 'Authorization', 'Accept'],
   credentials: true,
 };
 
 app.use('*', cors(corsOptions));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+mongoose.connect('mongodb://localhost:27017/mestodb', {
+  useNewUrlParser: true,
+  autoIndex: true, // make this also true
+});
+// app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(express.json());
+
+app.use(requestLogger); // подключаем логгер запросов
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -82,13 +96,15 @@ app.all('*', (req, res, next) => {
 
 app.use(errorLogger); // подключаем логгер ошибок
 
+app.use(errorCelebrate());
+
 app.use(errors);
 
 // app.use((err, req, res, next) => {
 //   res.send({ msg: err.message });
 //   next(new Error('Ошибка авторизации'));
 // });
-
+// 'Ссылка на сервер: http://api.application-mesto.nomoredomains.xyz'
 app.listen(PORT, () => {
-  console.log('Ссылка на сервер: http://application-mesto.nomoredomains.icu/');
+  console.log(`${PORT}`);
 });
