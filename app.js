@@ -30,22 +30,22 @@ app.use(requestLogger); // подключаем логгер запросов
 // корс №1
 // app.use(allowOrigin);
 // корс №2
-// const corsOptions = {
-//   origin: [
-//     'https://application-mesto.nomoredomains.icu',
-//     'http://application-mesto.nomoredomains.icu',
-//     'https://api.application-mesto.nomoredomains.xyz',
-//     'http://api.application-mesto.nomoredomains.xyz',
-//     'localhost:3000',
-//   ],
-//   methods: ['PUT', 'GET', 'POST', 'PATCH', 'DELETE', 'HEAD'],
-//   preflightContinue: false,
-//   optionSuccessStatus: 204,
-//   allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
-//   credentials: true,
-// };
+const corsOptions = {
+  origin: [
+    'https://application-mesto.nomoredomains.icu',
+    'http://application-mesto.nomoredomains.icu',
+    'https://api.application-mesto.nomoredomains.xyz',
+    'http://api.application-mesto.nomoredomains.xyz',
+    'localhost:3000',
+  ],
+  methods: ['PUT', 'GET', 'POST', 'PATCH', 'DELETE', 'HEAD'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
+  credentials: true,
+};
 
-app.use('*', cors());
+app.use('*', cors(corsOptions));
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
