@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, Joi, errorCelebrate } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -8,7 +8,7 @@ const routesCards = require('./routes/cards');
 const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const errors = require('./middlewares/errors');
+const errorHandler = require('./middlewares/errors');
 // const { allowOrigin } = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 // const path = require('path');
@@ -20,15 +20,16 @@ const app = express();
 // app.use(allowOrigin);
 // корс №2
 const corsOptions = {
+  // origin: '*',
   origin: [
+    'https://mesto.nomoreparties.co/v1/cohort-26',
     'https://application-mesto.nomoredomains.icu',
     'http://application-mesto.nomoredomains.icu',
     'https://api.application-mesto.nomoredomains.xyz',
     'http://api.application-mesto.nomoredomains.xyz',
-    'localhost:7000',
-    'http://localhost:7000',
-    'https://localhost:7000',
-    'localhost:7000',
+    'localhost:3001',
+    'http://localhost:3001',
+    'https://localhost:3001',
     'https://localhost:3000',
     'http://localhost:3000',
     'localhost:3000',
@@ -96,9 +97,9 @@ app.all('*', (req, res, next) => {
 
 app.use(errorLogger); // подключаем логгер ошибок
 
-app.use(errorCelebrate());
+// app.use(errors());
 
-app.use(errors);
+app.use(errorHandler);
 
 // app.use((err, req, res, next) => {
 //   res.send({ msg: err.message });
@@ -106,5 +107,5 @@ app.use(errors);
 // });
 // 'Ссылка на сервер: http://api.application-mesto.nomoredomains.xyz'
 app.listen(PORT, () => {
-  console.log(`${PORT}`);
+  console.log('Ссылка на сервер: http://api.application-mesto.nomoredomains.xyz');
 });
