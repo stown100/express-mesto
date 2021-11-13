@@ -9,15 +9,10 @@ const routesUsers = require('./routes/users');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errors');
-// const { allowOrigin } = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-// const path = require('path');
 
 const PORT = 3000;
 const app = express();
-
-// корс №1
-// app.use(allowOrigin);
 // корс №2
 const corsOptions = {
   // origin: '*',
@@ -50,7 +45,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   autoIndex: true, // make this also true
 });
-// app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.json());
 
@@ -97,14 +91,7 @@ app.all('*', (req, res, next) => {
 
 app.use(errorLogger); // подключаем логгер ошибок
 
-// app.use(errors());
-
 app.use(errorHandler);
-
-// app.use((err, req, res, next) => {
-//   res.send({ msg: err.message });
-//   next(new Error('Ошибка авторизации'));
-// });
 // 'Ссылка на сервер: http://api.application-mesto.nomoredomains.xyz'
 app.listen(PORT, () => {
   console.log('Ссылка на сервер: http://api.application-mesto.nomoredomains.xyz');
