@@ -15,9 +15,12 @@ const createCards = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new CastError('Введены невалидные данные');
+      if (err.message === 'Validation failed' || err.name === 'ValidationError') {
+        next(new CastError('Переданы некорректные данные при создании карточки'));
       }
+      const error = new Error('На сервере произошла ошибка');
+      error.statusCode = 500;
+      return next(error);
     })
     .catch(next);
 };

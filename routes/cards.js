@@ -9,7 +9,7 @@ router.get('/', getCards);
 
 router.post('/', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
+    name: Joi.string().min(2).max(30),
     link: Joi.string().custom((value, helper) => {
       if (validator.isURL(value, { require_protocol: true })) {
         return value;
@@ -21,7 +21,7 @@ router.post('/', celebrate({
 
 router.delete('/:cardId', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().min(24).max(24).hex()
+    cardId: Joi.string().length(24).hex()
       .required(),
   }),
 }), deleteCard);
