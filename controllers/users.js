@@ -113,6 +113,7 @@ const updateUser = (req, res, next) => {
         err.statusCode = 400;
         return next(err);
       }
+      console.log('тут ошибка');
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;
       return next(error);
@@ -145,7 +146,9 @@ const updateAvatar = (req, res, next) => {
         err.statusCode = 400;
         return next(err);
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      const error = new Error('На сервере произошла ошибка');
+      error.statusCode = 500;
+      return next(error);
     })
     .catch(next);
 };
