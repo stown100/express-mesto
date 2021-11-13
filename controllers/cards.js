@@ -2,7 +2,6 @@ const Card = require('../models/card');
 const ForbiddenError = require('../errors/ForbiddenError');
 const NotFound = require('../errors/NotFound');
 const CastError = require('../errors/CastError');
-const ConflictError = require('../errors/ConflictError');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -16,12 +15,9 @@ const createCards = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.message === 'Validation failed' || err.name === 'ValidationError') {
-        next(new ConflictError('Переданы некорректные данные при создании карточки'));
+      if (err.name === 'ValidationError') {
+        throw new CastError('Введены невалидные данные');
       }
-      const error = new Error('На сервере произошла ошибка');
-      error.statusCode = 500;
-      return next(error);
     })
     .catch(next);
 };
