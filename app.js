@@ -60,7 +60,7 @@ app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().email({ tlds: { allow: false } }).required(),
     password: Joi.string().required(),
-  }).unknown(true),
+  }),
 }), login);
 
 app.post('/signup', celebrate({

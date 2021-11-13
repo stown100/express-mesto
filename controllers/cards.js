@@ -1,4 +1,7 @@
 const Card = require('../models/card');
+const ForbiddenError = require('../errors/ForbiddenError');
+const NotFound = require('../errors/NotFound');
+const CastError = require('../errors/CastError');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -12,15 +15,8 @@ const createCards = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((cards) => res.send(cards))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const err = new Error('Переданы некорректные данные при создании карточки');
-        err.statusCode = 400;
-        return next(err);
-      }
-      if (err.message === 'Validation failed') {
-        const err = new Error('Переданы некорректные данные при создании карточки');
-        err.statusCode = 400;
-        return next(err);
+      if (err.message === 'Validation failed' || err.name === 'ValidationError') {
+        next(new CastError('Переданы некорректные данные при создании карточки'));
       }
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;
@@ -37,9 +33,7 @@ const deleteCard = (req, res, next) => {
   })
     .then((card) => {
       if (!card) {
-        const err = new Error('Нет карточки по заданному id');
-        err.statusCode = 404;
-        return next(err);
+        next(new NotFound('Нет карточки/пользователя по заданному id'));
       }
       if (card.owner.toString() === cardById.toString()) {
         Card.findOneAndRemove({
@@ -50,21 +44,15 @@ const deleteCard = (req, res, next) => {
             res.send(cardRes);
           });
       } else {
-        const err = new Error('Карточку создали не вы!');
-        err.statusCode = 403;
-        return next(err);
+        next(new ForbiddenError('Карточку создали не вы!'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        const err = new Error('Нет карточки по заданному id');
-        err.statusCode = 400;
-        return next(err);
+        next(new CastError('Невалидный id'));
       }
       if (err.message === 'NotFound') {
-        const err = new Error('Нет карточки по заданному id');
-        err.statusCode = 404;
-        return next(err);
+        next(new NotFound('Нет карточки/пользователя по заданному id'));
       }
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;
@@ -83,21 +71,15 @@ const likeCard = (req, res, next) => {
       if (card) {
         res.send(card);
       } else {
-        const err = new Error('Карточка с указанным _id не найдена');
-        err.statusCode = 404;
-        return next(err);
+        next(new NotFound('Нет карточки/пользователя по заданному id'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        const err = new Error('Невалидный id');
-        err.statusCode = 400;
-        next(err);
+        next(new CastError('Невалидный id'));
       }
       if (err.message === 'NotFound') {
-        const err = new Error('Нет карточки по заданному id');
-        err.statusCode = 404;
-        next(err);
+        next(new NotFound('Нет карточки/пользователя по заданному id'));
       }
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;
@@ -115,21 +97,15 @@ const dislikeCard = (req, res, next) => {
       if (card) {
         res.send(card);
       } else {
-        const err = new Error('Карточка с указанным _id не найдена');
-        err.statusCode = 404;
-        return next(err);
+        next(new NotFound('Нет карточки/пользователя по заданному id'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        const err = new Error('Невалидный id');
-        err.statusCode = 400;
-        next(err);
+        next(new CastError('Невалидный id'));
       }
       if (err.message === 'NotFound') {
-        const err = new Error('Нет карточки/пользователя по заданному id');
-        err.statusCode = 404;
-        next(err);
+        next(new NotFound('Нет карточки/пользователя по заданному id'));
       }
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;
