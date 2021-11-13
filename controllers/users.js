@@ -17,7 +17,7 @@ const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  // User.findOne({ email });
+  User.findOne({ email });
   // хешируем пароль
   bcrypt.hash(password, 10)
     .then((password) => {
