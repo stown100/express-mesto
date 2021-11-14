@@ -84,11 +84,6 @@ app.use(auth);
 app.use('/users', routesUsers);
 app.use('/cards', routesCards);
 
-// app.all('*', (req, res, next) => {
-//   const err = new Error('Ресурс не найден');
-//   err.statusCode = 404;
-//   return next(err);
-// });
 app.all('*', (req, res, next) => next(new NotFound('Ресурс не найден')));
 
 app.use(errorLogger); // подключаем логгер ошибок
