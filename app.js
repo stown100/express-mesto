@@ -10,6 +10,7 @@ const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const NotFound = require('./errors/NotFound');
 
 const PORT = 3000;
 const app = express();
@@ -83,11 +84,12 @@ app.use(auth);
 app.use('/users', routesUsers);
 app.use('/cards', routesCards);
 
-app.all('*', (req, res, next) => {
-  const err = new Error('Ресурс не найден');
-  err.statusCode = 404;
-  return next(err);
-});
+// app.all('*', (req, res, next) => {
+//   const err = new Error('Ресурс не найден');
+//   err.statusCode = 404;
+//   return next(err);
+// });
+app.use('*', new NotFound('Ресурс не найден'));
 
 app.use(errorLogger); // подключаем логгер ошибок
 
