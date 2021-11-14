@@ -51,12 +51,14 @@ const getUsers = (req, res, next) => {
 const getUserById = (req, res, next) => {
   const id = req.params.userId;
   User.findById({ _id: id })
-    .orFail(new NotFound('Пользователя с таким id не существует'))
+    .orFail(() => {
+      throw new NotFound('Пользователя с таким id не существует');
+    })
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        next(new NotFound('Пользователя с таким id не существует'));
+        throw new NotFound('Пользователя с таким id не существует');
       }
     })
     .catch((err) => {
@@ -78,7 +80,9 @@ const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
-    .orFail(new NotFound('Пользователя с таким id не существует'))
+    .orFail(() => {
+      throw new NotFound('Пользователя с таким id не существует');
+    })
     .then((user) => {
       if (user) {
         res.send(user);
@@ -102,7 +106,9 @@ const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .orFail(new NotFound('Пользователя с таким id не существует'))
+    .orFail(() => {
+      throw new NotFound('Пользователя с таким id не существует');
+    })
     .then((user) => {
       if (user) {
         res.send(user);
@@ -156,7 +162,9 @@ const login = (req, res, next) => {
 const getUserMe = (req, res, next) => {
   const id = req.user._id;
   User.find({ _id: id })
-    .orFail(new NotFound('Пользователя с таким id не существует'))
+    .orFail(() => {
+      throw new NotFound('Пользователя с таким id не существует');
+    })
     .then((user) => {
       if (user) {
         res.send(user);
