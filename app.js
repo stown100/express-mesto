@@ -89,7 +89,7 @@ app.use('/cards', routesCards);
 //   err.statusCode = 404;
 //   return next(err);
 // });
-app.all('*', new NotFound('Ресурс не найден'));
+app.all('*', (req, res, next) => next(new NotFound('Ресурс не найден')));
 
 app.use(errorLogger); // подключаем логгер ошибок
 
