@@ -46,8 +46,19 @@ const createUser = (req, res, next) => {
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send(users))
-    .catch(next);
+    .then((users) => {
+      if (users) {
+        res.send(users);
+      } else {
+        next(new NotFound('Пользователя с таким id не существует'));
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new CastError('Переданны некорректные данные'));
+      }
+      next(err);
+    });
 };
 
 const getUserById = (req, res, next) => {
