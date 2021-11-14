@@ -41,7 +41,7 @@ const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       if (!users) {
-        next(new CastError('Переданны некорректные данные'));
+        throw new CastError('Переданны некорректные данные');
       }
       res.send(users);
     })
