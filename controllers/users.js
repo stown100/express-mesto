@@ -37,31 +37,20 @@ const createUser = (req, res, next) => {
     });
 };
 
-// const getUsers = (req, res, next) => {
-//   User.find({})
-//     .then((users) => {
-//       if (!users) {
-//         throw new CastError('Переданны некорректные данные');
-//       }
-//       res.send(users);
-//     })
-//     .catch(next);
-// };
-
-const getUsers = async (req, res, next) => {
-  try {
-    const users = await User.find({});
-    // console.log(users);
-    res.json(users);
-  } catch (err) {
-    // console.log('err');
-    res.status(400).send(err);
-  }
+const getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => {
+      if (!users) {
+        throw new CastError('Переданны некорректные данные');
+      }
+      res.send(users);
+    })
+    .catch(next);
 };
 
 const getUserById = (req, res, next) => {
   const id = req.params.userId;
-  User.findById({ _id: id })
+  return User.findById({ _id: id })
     .orFail(() => {
       throw new NotFound('Пользователя с таким id не существует');
     })
@@ -74,10 +63,10 @@ const getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new CastError('Переданны некорректные данные'));
+        throw new CastError('Переданны некорректные данные');
       }
       if (err.name === 'NotFound') {
-        next(new NotFound('Пользователя с таким id не существует'));
+        throw new NotFound('Пользователя с таким id не существует');
       }
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;

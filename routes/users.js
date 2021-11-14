@@ -1,4 +1,4 @@
-const { celebrate, Joi } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 const router = require('express').Router();
 const {
@@ -31,5 +31,7 @@ router.patch('/me/avatar', celebrate({
     }),
   }),
 }), updateAvatar);
+
+router.use(errors());
 
 module.exports = router;
