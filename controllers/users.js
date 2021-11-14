@@ -39,13 +39,18 @@ const createUser = (req, res, next) => {
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send(users))
+    .then((users) => {
+      if (!users) {
+        next(new CastError('Переданны некорректные данные'));
+      }
+      res.send(users);
+    })
     .catch(next);
 };
 
 const getUserById = (req, res, next) => {
-  const id = req.params.userId;
-  User.findById({ _id: id })
+  // const id = req.params.userId;
+  User.findById(req.params.userId)
     .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
       if (user) {
@@ -149,10 +154,11 @@ const login = (req, res, next) => {
 };
 
 const getUserMe = (req, res, next) => {
-  const id = req.user._id;
-  User.find({ _id: id })
+  // const id = req.user._id;
+  User.findById(req.user._id)
     .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
+      console.log('3');
       if (user) {
         res.send(user);
       } else {
