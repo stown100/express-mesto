@@ -24,10 +24,10 @@ const createUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            return new CastError('Переданны некорректные данные');
+            next(new CastError('Переданны некорректные данные'));
           }
           if (err.name === 'MongoServerError' || err.message === 'Validation failed') {
-            return new ConflictError('При регистрации указан email, который уже существует на сервере');
+            next(new ConflictError('При регистрации указан email, который уже существует на сервере'));
           }
           const error = new Error('На сервере произошла ошибка');
           error.statusCode = 500;
@@ -46,23 +46,20 @@ const getUsers = (req, res, next) => {
 const getUserById = (req, res, next) => {
   const id = req.params.userId;
   return User.findById({ _id: id })
-    .orFail(res.status(400).send({ message: new Error('Пользователя с таким id не существует') }))
+    .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(400).send({ message: new Error('Пользователя с таким id не существует') });
-        // return new NotFound('Пользователя с таким id не существует');
+        next(new NotFound('Пользователя с таким id не существует'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: new Error('Пользователя с таким id не существует') });
-        // return new CastError('Переданны некорректные данные');
+        next(new CastError('Переданны некорректные данные'));
       }
       if (err.name === 'NotFound') {
-        res.status(400).send({ message: new Error('Пользователя с таким id не существует') });
-        // return new NotFound('Пользователя с таким id не существует');
+        next(new NotFound('Пользователя с таким id не существует'));
       }
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;
@@ -76,19 +73,17 @@ const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
-    .orFail(res.status(400).send({ message: new Error('Пользователя с таким id не существует') }))
+    .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(400).send({ message: new Error('Пользователя с таким id не существует') });
-        // return new CastError('Переданны некорректные данные');
+        next(new CastError('Переданны некорректные данные'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(400).send({ message: new Error('Пользователя с таким id не существует') });
-        // return new CastError('Переданны некорректные данные');
+        next(new CastError('Переданны некорректные данные'));
       }
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;
@@ -102,19 +97,17 @@ const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .orFail(res.status(400).send({ message: new Error('Пользователя с таким id не существует') }))
+    .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(400).send({ message: new Error('Пользователя с таким id не существует') });
-        // return new CastError('Переданны некорректные данные');
+        next(new CastError('Переданны некорректные данные'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(400).send({ message: new Error('Пользователя с таким id не существует') });
-        // return new CastError('Переданны некорректные данные');
+        next(new CastError('Переданны некорректные данные'));
       }
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;
@@ -131,14 +124,14 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return new AuthorizedError('Неправильные почта или пароль');
+        next(new AuthorizedError('Неправильные почта или пароль'));
       }
       userId = user._id;
       return bcrypt.compare(password, user.password);
     })
     .then((matched) => {
       if (!matched) {
-        return new AuthorizedError('Неправильные почта или пароль');
+        next(new AuthorizedError('Неправильные почта или пароль'));
       }
 
       // аутентификация успешна
@@ -158,19 +151,17 @@ const login = (req, res, next) => {
 const getUserMe = (req, res, next) => {
   const id = req.user._id;
   User.find({ _id: id })
-    .orFail(res.status(400).send({ message: new Error('Пользователя с таким id не существует') }))
+    .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(400).send({ message: new Error('Пользователя с таким id не существует') });
-        // return new NotFound('Пользователя с таким id не существует');
+        next(new NotFound('Пользователя с таким id не существует'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: new Error('Пользователя с таким id не существует') });
-        // return new CastError('Переданны некорректные данные');
+        next(new CastError('Переданны некорректные данные'));
       }
       const error = new Error('На сервере произошла ошибка');
       error.statusCode = 500;
