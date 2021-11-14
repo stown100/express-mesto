@@ -37,15 +37,26 @@ const createUser = (req, res, next) => {
     });
 };
 
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => {
-      if (!users) {
-        throw new CastError('Переданны некорректные данные');
-      }
-      res.send(users);
-    })
-    .catch(next);
+// const getUsers = (req, res, next) => {
+//   User.find({})
+//     .then((users) => {
+//       if (!users) {
+//         throw new CastError('Переданны некорректные данные');
+//       }
+//       res.send(users);
+//     })
+//     .catch(next);
+// };
+
+const getUsers = async (req, res, next) => {
+  try {
+    const users = await User.find({});
+    // console.log(users);
+    res.json(users);
+  } catch (err) {
+    // console.log('err');
+    res.status(400).send(err);
+  }
 };
 
 const getUserById = (req, res, next) => {
