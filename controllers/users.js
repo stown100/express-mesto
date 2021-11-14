@@ -6,13 +6,6 @@ const CastError = require('../errors/CastError');
 const NotFound = require('../errors/NotFound');
 const ConflictError = require('../errors/ConflictError');
 
-// class ConflictError extends Error {
-//   constructor(message) {
-//     super(message);
-//     this.statusCode = 409;
-//   }
-// }
-
 const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
@@ -46,25 +39,14 @@ const createUser = (req, res, next) => {
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => {
-      console.log('123');
-      if (users) {
-        res.send(users);
-      } else {
-        next(new NotFound('Пользователя с таким id не существует'));
-      }
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new CastError('Переданны некорректные данные'));
-      }
-      next(err);
-    });
+    .then((users) => res.send(users))
+    .catch(next);
 };
 
 const getUserById = (req, res, next) => {
   const id = req.params.userId;
   return User.findById({ _id: id })
+    .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
       if (user) {
         res.send(user);
@@ -91,6 +73,7 @@ const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+    .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
       if (user) {
         res.send(user);
@@ -114,6 +97,7 @@ const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+    .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
       if (user) {
         res.send(user);
@@ -167,6 +151,7 @@ const login = (req, res, next) => {
 const getUserMe = (req, res, next) => {
   const id = req.user._id;
   User.find({ _id: id })
+    .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
       if (user) {
         res.send(user);
