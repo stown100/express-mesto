@@ -3,4 +3,5 @@ module.exports = (err, req, res, next) => {
   res.status(statusCode);
   res.send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
   next();
+  console.log('центр');
 };

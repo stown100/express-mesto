@@ -89,7 +89,6 @@ app.all('*', (req, res, next) => next(new NotFound('Ресурс не найде
 app.use(errorLogger); // подключаем логгер ошибок
 
 app.use(errorHandler);
-// 'Ссылка на сервер: http://api.application-mesto.nomoredomains.xyz'
 app.listen(PORT, () => {
   console.log('Ссылка на сервер: http://api.application-mesto.nomoredomains.xyz');
 });
