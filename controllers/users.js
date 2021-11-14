@@ -49,8 +49,8 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  // const id = req.params.userId;
-  User.findById(req.params.userId)
+  const id = req.params.userId;
+  User.findById({ _id: id })
     .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
       if (user) {
@@ -154,11 +154,10 @@ const login = (req, res, next) => {
 };
 
 const getUserMe = (req, res, next) => {
-  // const id = req.user._id;
-  User.findById(req.user._id)
+  const id = req.user._id;
+  User.find({ _id: id })
     .orFail(new NotFound('Пользователя с таким id не существует'))
     .then((user) => {
-      console.log('3');
       if (user) {
         res.send(user);
       } else {
